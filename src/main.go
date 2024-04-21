@@ -1,13 +1,8 @@
 package main
 
-import (
-	"gowgapi/ifmana"
-	"log"
-)
+import "gowgapi/wgsetup"
 
 func main() {
-	err := ifmana.StartService("nigger")
-	if err != nil {
-		log.Println(err)
-	}
+	// Setting up WireGuard
+	wgsetup.SetupInstall()
 }

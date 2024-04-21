@@ -1,4 +1,4 @@
-package ifmana
+package wgiface
 
 import "os/exec"
 
