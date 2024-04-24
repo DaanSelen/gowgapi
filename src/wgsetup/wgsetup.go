@@ -5,29 +5,26 @@ import "log"
 const (
 	wireGuard_Pkg string = "wireguard"
 	wireGuard_Dir string = "/etc/wireguard"
+	wgQuick_Loc   string = "/usr/bin/wg-quick"
 )
 
+func CheckInstall() bool {
+	if !statDirectory() || !statPackage() {
+		log.Println("Installation incomplete, installing...")
+		return false
+	} else {
+		log.Println("Installation is complete.")
+		return true
+	}
+}
+
 func SetupInstall() {
-	var dirCheck bool
-	var pkgCheck bool
+	createDirectoryTree()
+	installPackage()
+	modQuick()
 
-	if !statDirectory() {
-		createDirectory()
-		dirCheck = statDirectory()
-	} else {
-		dirCheck = true
-		log.Println("Directory is present.")
-	}
-
-	if !statPackage() {
-		installPackage()
-		pkgCheck = statPackage()
-	} else {
-		pkgCheck = true
-		log.Println("Package is present.")
-	}
-
-	if dirCheck && pkgCheck {
-		log.Println("All checks passed. WireGuard is set up.")
+	log.Println("Rerunning check to verify...")
+	if CheckInstall() {
+		log.Println("Successfully installed.")
 	}
 }
