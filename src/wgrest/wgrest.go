@@ -29,5 +29,17 @@ func rootEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func createInterface(w http.ResponseWriter, r *http.Request) {
+	var body interfaceBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		return
+	}
 
+	log.Println(body)
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(infoBody{
+		Code:    "OK",
+		Message: "GoWGApi, V0.0.1",
+	})
 }
