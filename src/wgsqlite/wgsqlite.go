@@ -1,5 +1,7 @@
 package wgsqlite
 
+// Package for SQLite data persistence and config storage.
+
 import (
 	"database/sql"
 	"log"
@@ -24,6 +26,30 @@ func InitDatabase() bool {
 		return false
 	} else {
 		log.Println("WGSqlite persistency succesfully connected.")
+		setupTables(userTab, ifaceTab, clientTab)
 		return true
+	}
+}
+
+func QueryUser(username string) UserQueryStruct {
+	log.Printf("SELECT * FROM user WHERE username == '%s';", username)
+	row := wgdb.QueryRow("SELECT username, password, role, salt FROM user WHERE username == ?;", username)
+	var result UserQueryStruct
+	row.Scan(&result.Username, &result.Password, &result.Role, &result.Salt)
+	return result
+}
+
+func setupTables(tables ...string) {
+	var count int = 0
+	for x := range tables { // Create all tables defined in the function call.
+		_, err := wgdb.Exec(tables[x])
+		if err != nil {
+			log.Println(err)
+		} else {
+			count++
+		}
+	}
+	if count == len(tables) {
+		log.Println("Tables successfully inserted.")
 	}
 }

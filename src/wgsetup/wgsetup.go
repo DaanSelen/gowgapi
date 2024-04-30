@@ -1,12 +1,8 @@
 package wgsetup
 
-import "log"
+// Package for getting the system ready for WireGuard usage.
 
-const (
-	wireGuard_Pkg string = "wireguard"
-	wireGuard_Dir string = "/etc/wireguard"
-	wgQuick_Loc   string = "/usr/bin/wg-quick"
-)
+import "log"
 
 func CheckInstall() bool {
 	if !statDirectory() || !statPackage() {

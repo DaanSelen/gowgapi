@@ -8,10 +8,16 @@ import (
 	"strings"
 )
 
+const (
+	wireGuard_Pkg string = "wireguard"
+	wireGuard_Dir string = "/etc/wireguard"
+	wgQuick_Loc   string = "/usr/bin/wg-quick"
+)
+
 func statDirectory() bool {
 	_, err1 := os.Stat(wireGuard_Dir)
-	_, err2 := os.Stat((wireGuard_Dir + "/interface-config"))
-	_, err3 := os.Stat((wireGuard_Dir + "/interface-client"))
+	_, err2 := os.Stat((wireGuard_Dir + "/iface-config"))
+	_, err3 := os.Stat((wireGuard_Dir + "/iface-client"))
 
 	if err1 != nil || err2 != nil || err3 != nil {
 		if os.IsNotExist(err1) || os.IsNotExist(err2) || os.IsNotExist(err3) {
@@ -27,8 +33,8 @@ func statDirectory() bool {
 func createDirectoryTree() {
 	if !statDirectory() {
 		err1 := os.Mkdir(wireGuard_Dir, 0755)
-		err2 := os.Mkdir((wireGuard_Dir + "/interface-config"), 0755)
-		err3 := os.Mkdir((wireGuard_Dir + "/interface-client"), 0755)
+		err2 := os.Mkdir((wireGuard_Dir + "/iface-config"), 0755)
+		err3 := os.Mkdir((wireGuard_Dir + "/iface-client"), 0755)
 		if err1 != nil || err2 != nil || err3 != nil {
 			if os.IsPermission(err1) || os.IsPermission(err2) || os.IsPermission(err3) {
 				log.Printf("Error creating directory.")
@@ -75,8 +81,8 @@ func modQuick() bool {
 		return false
 	}
 
-	oldString := `[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="/etc/wireguard/$CONFIG_FILE.conf"`
-	newString := fmt.Sprintf(`[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="%s/$CONFIG_FILE.conf"`, (wireGuard_Dir + "/interface-config"))
+	oldString := `[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="/etc/wireguard/$CONFIG_FILE.conf"` // Only the part after the '&&' matters.
+	newString := fmt.Sprintf(`[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="%s/$CONFIG_FILE.conf"`, (wireGuard_Dir + "/iface-config"))
 
 	modifiedContent := strings.Replace(string(content), oldString, newString, -1)
 

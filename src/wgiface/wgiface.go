@@ -1,5 +1,7 @@
 package wgiface
 
+// Package for managing the WireGuard interfaces
+
 import "os/exec"
 
 func StartService(serviceName string) error {
