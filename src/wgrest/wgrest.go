@@ -11,6 +11,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	version string = "GoWGAPI: 0.0.2"
+)
+
 func InitFrontend() {
 	log.Println("GoWGAPI Ready")
 	wgapi := mux.NewRouter().StrictSlash(true)
@@ -39,13 +43,17 @@ func createInterface(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wgauth.Authenticate(iFaceBody.Username, iFaceBody.Password)
-
-	log.Println(iFaceBody)
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(infoBody{
-		Code:    "CREATED",
-		Message: "GoWGApi, V0.0.1",
-	})
+	if wgauth.Authenticate(iFaceBody.Username, iFaceBody.Password) {
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(infoBody{
+			Code:    "CREATED",
+			Message: version,
+		})
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(infoBody{
+			Code:    "UNAUTHORIZED",
+			Message: version,
+		})
+	}
 }
