@@ -13,21 +13,19 @@ var (
 	wgdb *sql.DB
 )
 
-func InitDatabase() bool {
+func InitDatabase() {
 	var err error
 	wgdb, err = sql.Open("sqlite3", "wgdb.db")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to create database", err)
 	}
 
 	err = wgdb.Ping()
 	if err != nil {
 		log.Fatal("Failed to ping the database:", err)
-		return false
 	} else {
 		log.Println("WGSqlite persistency succesfully connected.")
 		setupTables(userTab, ifaceTab, clientTab)
-		return true
 	}
 }
 
@@ -43,7 +41,7 @@ func setupTables(tables ...string) {
 	for x := range tables { // Create all tables defined in the function call.
 		_, err := wgdb.Exec(tables[x])
 		if err != nil {
-			log.Println(err)
+			log.Fatal("Failed getting database ready:", err)
 		} else {
 			count++
 		}

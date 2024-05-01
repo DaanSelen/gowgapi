@@ -14,15 +14,14 @@ const (
 	wgQuick_Loc   string = "/usr/bin/wg-quick"
 )
 
-func statDirectory() bool {
-	_, err1 := os.Stat(wireGuard_Dir)
-	_, err2 := os.Stat((wireGuard_Dir + "/iface-config"))
-	_, err3 := os.Stat((wireGuard_Dir + "/iface-client"))
-
-	if err1 != nil || err2 != nil || err3 != nil {
-		if os.IsNotExist(err1) || os.IsNotExist(err2) || os.IsNotExist(err3) {
+func statCertDirectory() bool {
+	_, err := os.Stat("./certificate")
+	if err != nil {
+		if os.IsNotExist(err) {
+			log.Println("Certificate directory not present.")
 			return false
 		} else {
+			log.Println("Unknown error while checking certificate directory presence.")
 			return false
 		}
 	} else {
@@ -30,25 +29,55 @@ func statDirectory() bool {
 	}
 }
 
-func createDirectoryTree() {
-	if !statDirectory() {
-		err1 := os.Mkdir(wireGuard_Dir, 0755)
-		err2 := os.Mkdir((wireGuard_Dir + "/iface-config"), 0755)
-		err3 := os.Mkdir((wireGuard_Dir + "/iface-client"), 0755)
-		if err1 != nil || err2 != nil || err3 != nil {
-			if os.IsPermission(err1) || os.IsPermission(err2) || os.IsPermission(err3) {
-				log.Printf("Error creating directory.")
-				log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
-			} else {
-				log.Println("Unable to create the WireGuard directory.")
-			}
+func createCertDirectory() {
+	err := os.Mkdir("./certificate", 0755)
+	if err != nil {
+		if os.IsPermission(err) {
+			log.Printf("Error creating directory.")
+			log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
 		} else {
-			log.Println("Created the WireGuard directory tree.")
+			log.Println("Unable to create the Certificate directory.")
 		}
+	} else {
+		log.Println("Created the Certificate directory.")
 	}
 }
 
-func statPackage() bool {
+func statWGDirectory() bool {
+	_, err1 := os.Stat(wireGuard_Dir)
+	_, err2 := os.Stat((wireGuard_Dir + "/iface-config"))
+	_, err3 := os.Stat((wireGuard_Dir + "/iface-client"))
+
+	if err1 != nil || err2 != nil || err3 != nil {
+		if os.IsNotExist(err1) || os.IsNotExist(err2) || os.IsNotExist(err3) {
+			log.Println("One of the needed directories is not present.")
+			return false
+		} else {
+			log.Println("Unknown error while checking directory presence.")
+			return false
+		}
+	} else {
+		return true
+	}
+}
+
+func createWGDirectoryTree() {
+	err1 := os.Mkdir(wireGuard_Dir, 0755)
+	err2 := os.Mkdir((wireGuard_Dir + "/iface-config"), 0755)
+	err3 := os.Mkdir((wireGuard_Dir + "/iface-client"), 0755)
+	if err1 != nil || err2 != nil || err3 != nil {
+		if os.IsPermission(err1) || os.IsPermission(err2) || os.IsPermission(err3) {
+			log.Printf("Error creating directory.")
+			log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
+		} else {
+			log.Println("Unable to create the WireGuard directory.", err1, err2, err3)
+		}
+	} else {
+		log.Println("Created the WireGuard directory tree.")
+	}
+}
+
+func statWGPackage() bool {
 	cmd := exec.Command("dpkg", "-s", wireGuard_Pkg)
 	output, _ := cmd.CombinedOutput()
 
@@ -61,20 +90,18 @@ func statPackage() bool {
 	}
 }
 
-func installPackage() {
-	if !statPackage() {
-		cmd := exec.Command("apt", "install", "-y", wireGuard_Pkg)
-		output, _ := cmd.CombinedOutput()
+func installWGPackage() {
+	cmd := exec.Command("apt", "install", "-y", wireGuard_Pkg)
+	output, _ := cmd.CombinedOutput()
 
-		if strings.Contains(string(output), "Setting up wireguard") {
-			log.Println("Installing Wireguard using APT.")
-		} else if strings.Contains(string(output), "Permission denied") {
-			log.Fatal("APT permission error.")
-		}
+	if strings.Contains(string(output), "Setting up wireguard") {
+		log.Println("Installing Wireguard using APT.")
+	} else if strings.Contains(string(output), "Permission denied") {
+		log.Fatal("APT permission error.")
 	}
 }
 
-func modQuick() bool {
+func modWGQuick() bool {
 	content, err := os.ReadFile("/usr/bin/wg-quick")
 	if err != nil {
 		log.Println("Error reading file:", err)

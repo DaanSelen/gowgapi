@@ -4,23 +4,32 @@ package wgsetup
 
 import "log"
 
-func CheckInstall() bool {
-	if !statDirectory() || !statPackage() {
+func Install() {
+	if repairInstall() {
+		verifyInstall()
+	}
+}
+
+func repairInstall() bool {
+	if !statWGDirectory() {
 		log.Println("Installation incomplete, installing...")
+		createWGDirectoryTree()
+		return false
+	} else if !statCertDirectory() {
+		createCertDirectory()
+		return false
+	} else if !statWGPackage() {
+		installWGPackage()
+		modWGQuick()
 		return false
 	} else {
-		log.Println("Installation is complete.")
 		return true
 	}
 }
 
-func SetupInstall() {
-	createDirectoryTree()
-	installPackage()
-	modQuick()
-
-	log.Println("Rerunning check to verify...")
-	if CheckInstall() {
+func verifyInstall() {
+	log.Println("Verifying install...")
+	if repairInstall() {
 		log.Println("Successfully installed.")
 	}
 }

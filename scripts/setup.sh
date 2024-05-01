@@ -68,7 +68,8 @@ function modify_wg-quick() {
 
 ### RUNNING CHAIN ###
 
-
+echo "Checking fro Wireguard directory tree"
+setup_wireguard_dir
 
 echo "Checking for WireGuard package installation..."
 setup_wireguard_package

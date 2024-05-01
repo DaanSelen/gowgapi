@@ -4,56 +4,47 @@ package wgrest
 
 import (
 	"encoding/json"
-	"gowgapi/wgauth"
+	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
 
 const (
-	version string = "GoWGAPI: 0.0.2"
+	version  string = "GoWGAPI: 0.0.2"
+	certFile string = "./certificate/gowgapi.crt"
+	keyFile  string = "./certificate/gowgapi.key"
 )
 
-func InitFrontend() {
-	log.Println("GoWGAPI Ready")
+func InitFrontend(waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
 	wgapi := mux.NewRouter().StrictSlash(true)
 
+	secureWeb := &http.Server{
+		Addr:     "0.0.0.0:4080", // Specify the desired HTTPS port
+		Handler:  wgapi,
+		ErrorLog: log.New(io.Discard, "", 0), // THIS IS DONE TO NOT RECEIVE CLIENT HTTP ERRORS. TO DEBUG, REMOVE THIS LINE OR CREATE A VALID LOGGER
+	}
+
 	wgapi.HandleFunc("/", rootEndpoint).Methods("GET")
+
+	wgapi.HandleFunc("/account/new", createAccount).Methods("POST")
 	wgapi.HandleFunc("/iface/new", createInterface).Methods("POST")
 
-	http.ListenAndServe((":4080"), wgapi)
+	err := secureWeb.ListenAndServeTLS(certFile, keyFile)
+	if err != nil {
+		log.Fatal("Failed to launch REST HTTP API:", err)
+	}
 }
 
 func rootEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(infoBody{
+	json.NewEncoder(w).Encode(InfoBody{
 		Code:    "OK",
 		Message: "GoWGAPI, V0.0.1",
 	})
-}
-
-func createInterface(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var iFaceBody interfaceBody
-	err := json.NewDecoder(r.Body).Decode(&iFaceBody)
-	if err != nil {
-		return
-	}
-
-	if wgauth.Authenticate(iFaceBody.Username, iFaceBody.Password) {
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(infoBody{
-			Code:    "CREATED",
-			Message: version,
-		})
-	} else {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(infoBody{
-			Code:    "UNAUTHORIZED",
-			Message: version,
-		})
-	}
 }
