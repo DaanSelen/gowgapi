@@ -10,6 +10,10 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+const (
+	defaultSaltLength = 128
+)
+
 func HashString(input string) string {
 	hasher := sha3.New512()
 	hasher.Write([]byte(input))
@@ -17,10 +21,13 @@ func HashString(input string) string {
 	return base64.StdEncoding.EncodeToString(hashSum)
 }
 
-func GenerateRandString(length int) string {
-	randomBytes := make([]byte, length)
+func GenRandString(length ...int) string {
+	if len(length) > 0 || len(length) > 1 {
+		length[0] = defaultSaltLength
+	}
+	randomBytes := make([]byte, length[0])
 	if _, err := rand.Read(randomBytes); err != nil {
 		log.Fatal("Error creating random string:", err)
 	}
-	return base64.URLEncoding.EncodeToString(randomBytes)[:length]
+	return base64.URLEncoding.EncodeToString(randomBytes)[:length[0]]
 }

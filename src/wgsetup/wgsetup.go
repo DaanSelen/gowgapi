@@ -4,10 +4,16 @@ package wgsetup
 
 import "log"
 
+const (
+	wireGuard_Pkg string = "wireguard" // Name of the package for WireGuard.
+	openssl_Pkg   string = "openssl"   // Name of the package for OpenSSL.
+)
+
 func Install() {
 	if repairInstall() {
 		verifyInstall()
 	}
+	ensureCert()
 }
 
 func repairInstall() bool {
@@ -18,9 +24,12 @@ func repairInstall() bool {
 	} else if !statCertDirectory() {
 		createCertDirectory()
 		return false
-	} else if !statWGPackage() {
-		installWGPackage()
+	} else if !statPackage(wireGuard_Pkg) {
+		installPackage(wireGuard_Pkg)
 		modWGQuick()
+		return false
+	} else if !statPackage(openssl_Pkg) {
+		installPackage(openssl_Pkg)
 		return false
 	} else {
 		return true

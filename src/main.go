@@ -14,7 +14,7 @@ func main() {
 	var waitGroup sync.WaitGroup
 
 	// Setting up the WireGuard application and its dependencies.
-	log.Println("Checking WireGuard status on system.")
+	log.Println("Checking dependency presence on system.")
 	wgsetup.Install()
 	// Done checking installation, everything should be setup.
 

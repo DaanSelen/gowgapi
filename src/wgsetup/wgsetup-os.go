@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	wireGuard_Pkg string = "wireguard"
 	wireGuard_Dir string = "/etc/wireguard"
 	wgQuick_Loc   string = "/usr/bin/wg-quick"
+	rsaLength     string = "8192"
 )
 
 func statCertDirectory() bool {
@@ -77,8 +77,8 @@ func createWGDirectoryTree() {
 	}
 }
 
-func statWGPackage() bool {
-	cmd := exec.Command("dpkg", "-s", wireGuard_Pkg)
+func statPackage(packageName string) bool {
+	cmd := exec.Command("dpkg", "-s", packageName)
 	output, _ := cmd.CombinedOutput()
 
 	if strings.Contains(string(output), "Status: install ok installed") {
@@ -90,12 +90,12 @@ func statWGPackage() bool {
 	}
 }
 
-func installWGPackage() {
-	cmd := exec.Command("apt", "install", "-y", wireGuard_Pkg)
+func installPackage(packageName string) {
+	cmd := exec.Command("apt", "install", "-y", packageName)
 	output, _ := cmd.CombinedOutput()
 
-	if strings.Contains(string(output), "Setting up wireguard") {
-		log.Println("Installing Wireguard using APT.")
+	if strings.Contains(string(output), ("Setting up " + packageName)) {
+		log.Printf("Installing %s using APT.", packageName)
 	} else if strings.Contains(string(output), "Permission denied") {
 		log.Fatal("APT permission error.")
 	}
@@ -121,4 +121,23 @@ func modWGQuick() bool {
 
 	log.Println("wg-quick modification complete.")
 	return true
+}
+
+func ensureCert() {
+	_, err1 := os.Stat("./certificate/gowgapi.crt")
+	_, err2 := os.Stat("./certificate/gowgapi.key")
+	if err1 != nil || err2 != nil {
+		if os.IsNotExist(err1) || os.IsNotExist(err2) {
+			log.Println("Using built-in OpenSSL tool to generate certificate...")
+			cmd := exec.Command("openssl", "req", "-x509", "-nodes", "-days", "3650", "-newkey", "rsa:"+rsaLength, "-keyout", "./certificate/gowgapi.key", "-out", "./certificate/gowgapi.crt", "-subj", "/C=NL/ST=Limburg/L=Venlo/O=Nerthus/CN=GoWGAPI")
+			output, _ := cmd.CombinedOutput()
+			log.Println(string(output))
+			log.Println("Generated self-signed certificate.")
+		} else {
+			log.Println("Unknown error while checking certificate presence.")
+		}
+	} else {
+		log.Println("Found pre-existing certificate and key.")
+	}
+
 }

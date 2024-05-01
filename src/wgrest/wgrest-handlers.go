@@ -42,6 +42,6 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wgauth.AuthAddr(r.RemoteAddr) {
-		wgsqlite.SaveAccount(accData.Username, accData.Password)
+		wgsqlite.SaveAccount(accData.Username, accData.Password, accData.Role)
 	}
 }
