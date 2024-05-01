@@ -11,6 +11,8 @@
 *.so
 *.dylib
 *.db
+*.key
+*.crt
 
 
 # Test binary, built with `go test -c`

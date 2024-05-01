@@ -18,6 +18,8 @@ const (
 	keyFile  string = "./certificate/gowgapi.key"
 )
 
+var ()
+
 func InitFrontend(waitGroup *sync.WaitGroup) {
 	defer waitGroup.Done()
 	wgapi := mux.NewRouter().StrictSlash(true)
