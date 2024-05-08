@@ -9,7 +9,7 @@ type UserQueryStruct struct {
 
 const (
 	userTab string = `
-	CREATE TABLE IF NOT EXISTS user (
+	CREATE TABLE IF NOT EXISTS account (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username VARCHAR(50) UNIQUE NOT NULL,
 		password VARCHAR(255) NOT NULL,

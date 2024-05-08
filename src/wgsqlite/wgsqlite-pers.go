@@ -6,13 +6,16 @@ import (
 )
 
 func SaveAccount(username, password, role string) {
-	prep, _ := wgdb.Prepare("INSERT INTO user (username, password, role, salt) VALUES ('?', '?', '?', '?');")
+	prep, err := wgdb.Prepare("INSERT INTO account (username, password, role, salt) VALUES (?, ?, ?, ?);")
+	if err != nil {
+		log.Println(err)
+	}
 	defer prep.Close()
 
 	secureSalt := wgcrypt.GenRandString()
 	securePassword := wgcrypt.HashString((password + secureSalt))
 
-	_, err := prep.Exec(prep, username, securePassword, role, secureSalt)
+	_, err = prep.Exec(username, securePassword, role, secureSalt)
 	if err != nil {
 		log.Println("Failed to create account:", err)
 	}

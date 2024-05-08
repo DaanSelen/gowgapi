@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-const (
-	defaultSaltLength = 128
+var (
+	minimumSaltLength = []int{128}
 )
 
 func HashString(input string) string {
@@ -22,9 +22,12 @@ func HashString(input string) string {
 }
 
 func GenRandString(length ...int) string {
-	if len(length) > 0 || len(length) > 1 {
-		length[0] = defaultSaltLength
+	if len(length) <= 0 || len(length) > 1 {
+		length = minimumSaltLength
+	} else if length[0] < 128 {
+		length = minimumSaltLength
 	}
+
 	randomBytes := make([]byte, length[0])
 	if _, err := rand.Read(randomBytes); err != nil {
 		log.Fatal("Error creating random string:", err)

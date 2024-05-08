@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"gowgapi/wgauth"
 	"gowgapi/wgsqlite"
+	"log"
 	"net/http"
+	"strings"
 )
 
 func createInterface(w http.ResponseWriter, r *http.Request) {
@@ -38,10 +40,20 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 	var accData AccountBody
 	err := json.NewDecoder(r.Body).Decode(&accData)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
+	accData.Role = strings.ToLower(accData.Role) // Convert string entry to lowercase to minimize errors.
 	if wgauth.AuthAddr(r.RemoteAddr) {
-		wgsqlite.SaveAccount(accData.Username, accData.Password, accData.Role)
+		if accData.Role == "administrator" || accData.Role == "user" {
+			wgsqlite.SaveAccount(accData.Username, accData.Password, accData.Role)
+		}
+	} else {
+		log.Println("Denied access for:", r.RemoteAddr)
 	}
+	json.NewEncoder(w).Encode(InfoBody{
+		Code:    "CREATED",
+		Message: version,
+	})
 }
