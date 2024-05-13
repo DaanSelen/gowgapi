@@ -4,6 +4,7 @@ package wgrest
 
 import (
 	"encoding/json"
+	"gowgapi/wgsqlite"
 	"io"
 	"log"
 	"net/http"
@@ -18,6 +19,10 @@ const (
 	keyFile  string = "./certificate/gowgapi.key"
 )
 
+var (
+	firstRun bool
+)
+
 func InitFrontend(waitGroup *sync.WaitGroup) {
 	defer waitGroup.Done()
 	wgapi := mux.NewRouter().StrictSlash(true)
@@ -27,6 +32,7 @@ func InitFrontend(waitGroup *sync.WaitGroup) {
 		Handler:  wgapi,
 		ErrorLog: log.New(io.Discard, "", 0), // THIS IS DONE TO NOT RECEIVE CLIENT HTTP ERRORS. TO DEBUG, REMOVE THIS LINE OR CREATE A VALID LOGGER
 	}
+	firstRun = wgsqlite.CheckEmptyAccountTable() // Check if there is at least one user in the database.
 
 	wgapi.HandleFunc("/", rootEndpoint).Methods("GET")
 
@@ -70,6 +76,14 @@ func setBad(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(InfoBody{
 		Code:    "BAD REQUEST",
+		Message: version,
+	})
+}
+
+func setDuplicate(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(InfoBody{
+		Code:    "DUPLICATE DETECTED",
 		Message: version,
 	})
 }

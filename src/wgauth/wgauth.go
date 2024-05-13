@@ -6,7 +6,6 @@ import (
 	"gowgapi/wgcrypt"
 	"gowgapi/wgsqlite"
 	"log"
-	"net"
 )
 
 func AuthCredentials(username, password string) bool {
@@ -28,11 +27,8 @@ func AuthAdminRole(username string) bool {
 	return result.Role == "administrator"
 }
 
-func AuthLocalAddr(remoteAddr string) bool {
-	host, _, err := net.SplitHostPort(remoteAddr)
-	if err != nil {
-		log.Println("Error reading remote address.")
+func AuthFirstTime() {
+	if wgsqlite.CheckEmptyAccountTable() {
+		log.Println("Skibidi Toilet")
 	}
-
-	return host == "127.0.0.1" || host == "::1"
 }

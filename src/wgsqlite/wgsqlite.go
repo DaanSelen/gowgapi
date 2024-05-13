@@ -25,7 +25,7 @@ func InitDatabase() {
 		log.Fatal("Failed to ping the database:", err)
 	} else {
 		log.Println("WGSqlite persistency succesfully connected.")
-		setupTables(userTab, ifaceTab, clientTab)
+		setupTables()
 	}
 }
 
@@ -36,17 +36,33 @@ func QueryUser(username string) UserQueryStruct {
 	return result
 }
 
-func setupTables(tables ...string) {
+func CheckEmptyAccountTable() bool {
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM account")
+	var rowCount int
+	row.Scan(&rowCount)
+
+	return rowCount == 0
+}
+
+func checkDuplicateUser(username string) bool {
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM account WHERE username == ?", username)
+	var rowCount int
+	row.Scan(&rowCount)
+
+	return rowCount > 0
+}
+
+func setupTables() {
 	var count int = 0
-	for x := range tables { // Create all tables defined in the function call.
-		_, err := wgdb.Exec(tables[x])
+	for x := range tableQueries { // Create all tables defined in the function call.
+		_, err := wgdb.Exec(tableQueries[x])
 		if err != nil {
 			log.Fatal("Failed getting database ready:", err)
 		} else {
 			count++
 		}
 	}
-	if count == len(tables) {
+	if count == len(tableQueries) {
 		log.Println("Tables successfully inserted.")
 	}
 }
