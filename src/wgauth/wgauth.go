@@ -5,7 +5,6 @@ package wgauth
 import (
 	"gowgapi/wgcrypt"
 	"gowgapi/wgsqlite"
-	"log"
 )
 
 func AuthCredentials(username, password string) bool {
@@ -25,10 +24,4 @@ func AuthAdminRole(username string) bool {
 	}
 
 	return result.Role == "administrator"
-}
-
-func AuthFirstTime() {
-	if wgsqlite.CheckEmptyAccountTable() {
-		log.Println("Skibidi Toilet")
-	}
 }
