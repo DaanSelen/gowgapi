@@ -13,9 +13,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   schedule:
     - cron: '26 5 * * 2'
 
@@ -89,5 +89,5 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
-     # with:
-     #   category: "/language:${{matrix.language}}"
+      with:
+        category: "/language:${{matrix.language}}"
