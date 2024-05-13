@@ -24,6 +24,7 @@ type InterfaceBody struct {
 	Interface struct {
 		Name        string `json:"name"`
 		Address     string `json:"address"`
+		Port        string `json:"port"`
 		Description string `json:"description"`
 	} `json:"interface"`
 }

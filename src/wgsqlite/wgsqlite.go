@@ -5,6 +5,7 @@ package wgsqlite
 import (
 	"database/sql"
 	"log"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -53,19 +54,24 @@ func checkDuplicateUser(username string) bool {
 }
 
 func checkDuplicateInterface(iface string) bool {
-	row := wgdb.QueryRow("SELECT COUNT(*) FROM account WHERE iface == ?", iface)
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM iface WHERE name == ?", iface)
 	var rowCount int
 	row.Scan(&rowCount)
 
 	return rowCount > 0
 }
 
-func checkDuplicateNetwork(address string) bool {
-	row := wgdb.QueryRow("SELECT COUNT(*) FROM account WHERE username == ?", address)
-	var rowCount int
-	row.Scan(&rowCount)
+func checkDuplicateNetwork(address, port string) bool {
+	octets := strings.Split(address, ".")
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM iface WHERE addr LIKE @pattern", sql.Named("pattern", "%."+octets[2]+".%")) // Check the third octec for /24 subnets.
+	var netRowCount int
+	row.Scan(&netRowCount)
 
-	return rowCount > 0
+	row = wgdb.QueryRow("SELECT COUNT(*) FROM iface WHERE port == ?", port)
+	var portRowCount int
+	row.Scan(&portRowCount)
+
+	return (netRowCount > 0 || portRowCount > 0)
 }
 
 func setupTables() {

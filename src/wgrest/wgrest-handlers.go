@@ -25,10 +25,10 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 
 	accData.Account.Role = strings.ToLower(accData.Account.Role) // Convert string entry to lowercase to minimize errors.
 
+	firstRun = wgsqlite.CheckEmptyAccountTable()
 	if firstRun || (wgauth.AuthCredentials(accData.Auth.Username, accData.Auth.Password) && wgauth.AuthAdminRole(accData.Auth.Username)) {
 		if accData.Account.Role == "administrator" || accData.Account.Role == "user" {
-			ok := wgsqlite.SaveAccount(accData.Account.Username, accData.Account.Password, accData.Account.Role)
-			if ok {
+			if ok := wgsqlite.SaveAccount(accData.Account.Username, accData.Account.Password, accData.Account.Role); ok {
 				setCreated(w)
 			} else {
 				setDuplicate(w)
@@ -40,7 +40,6 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 		log.Println("Denied access for:", r.RemoteAddr)
 		setUnauthorized(w)
 	}
-	firstRun = wgsqlite.CheckEmptyAccountTable()
 }
 
 func removeAccount(w http.ResponseWriter, r *http.Request) {
@@ -70,9 +69,11 @@ func createInterface(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wgauth.AuthCredentials(ifaceData.Auth.Username, ifaceData.Auth.Password) && wgauth.AuthAdminRole(ifaceData.Auth.Username) {
-		wgsqlite.SaveInterface(ifaceData.Interface.Name, ifaceData.Interface.Address, ifaceData.Interface.Description)
-
-		setCreated(w)
+		if ok := wgsqlite.SaveInterface(ifaceData.Interface.Name, ifaceData.Interface.Address, ifaceData.Interface.Port, ifaceData.Interface.Description); ok {
+			setCreated(w)
+		} else {
+			setDuplicate(w)
+		}
 	} else {
 		setUnauthorized(w)
 	}
