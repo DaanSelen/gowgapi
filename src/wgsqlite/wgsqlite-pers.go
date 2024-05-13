@@ -20,3 +20,16 @@ func SaveAccount(username, password, role string) {
 		log.Println("Failed to create account:", err)
 	}
 }
+
+func DeleteAccount(username string) {
+	prep, err := wgdb.Prepare("DELETE FROM account WHERE username = ?;")
+	if err != nil {
+		log.Println(err)
+	}
+	defer prep.Close()
+
+	_, err = prep.Exec(username)
+	if err != nil {
+		log.Println("Failed to delete account data:", err)
+	}
+}

@@ -30,7 +30,7 @@ func InitDatabase() {
 }
 
 func QueryUser(username string) UserQueryStruct {
-	row := wgdb.QueryRow("SELECT username, password, role, salt FROM user WHERE username == ?;", username)
+	row := wgdb.QueryRow("SELECT username, password, role, salt FROM account WHERE username == ?;", username)
 	var result UserQueryStruct
 	row.Scan(&result.Username, &result.Password, &result.Role, &result.Salt)
 	return result

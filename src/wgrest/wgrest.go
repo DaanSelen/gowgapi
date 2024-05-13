@@ -18,8 +18,6 @@ const (
 	keyFile  string = "./certificate/gowgapi.key"
 )
 
-var ()
-
 func InitFrontend(waitGroup *sync.WaitGroup) {
 	defer waitGroup.Done()
 	wgapi := mux.NewRouter().StrictSlash(true)
@@ -32,8 +30,11 @@ func InitFrontend(waitGroup *sync.WaitGroup) {
 
 	wgapi.HandleFunc("/", rootEndpoint).Methods("GET")
 
-	wgapi.HandleFunc("/account/new", createAccount).Methods("POST")
-	wgapi.HandleFunc("/iface/new", createInterface).Methods("POST")
+	wgapi.HandleFunc("/account/create", createAccount).Methods("POST")
+	wgapi.HandleFunc("/account/delete", removeAccount).Methods("DELETE")
+
+	wgapi.HandleFunc("/iface/create", createInterface).Methods("POST")
+	wgapi.HandleFunc("/iface/delete", createInterface).Methods("DELETE")
 
 	err := secureWeb.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
@@ -41,12 +42,34 @@ func InitFrontend(waitGroup *sync.WaitGroup) {
 	}
 }
 
-func rootEndpoint(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func setOkay(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
-
 	json.NewEncoder(w).Encode(InfoBody{
-		Code:    "OK",
-		Message: "GoWGAPI, V0.0.1",
+		Code:    "OK REQUEST",
+		Message: version,
+	})
+}
+
+func setCreated(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(InfoBody{
+		Code:    "CREATED",
+		Message: version,
+	})
+}
+
+func setUnauthorized(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(w).Encode(InfoBody{
+		Code:    "UNAUTHORIZED REQUEST",
+		Message: version,
+	})
+}
+
+func setBad(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(InfoBody{
+		Code:    "BAD REQUEST",
+		Message: version,
 	})
 }
