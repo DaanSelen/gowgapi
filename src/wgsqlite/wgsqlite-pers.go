@@ -2,6 +2,7 @@ package wgsqlite
 
 import (
 	"gowgapi/wgcrypt"
+	"gowgapi/wgiface"
 	"log"
 )
 
@@ -36,5 +37,20 @@ func DeleteAccount(username string) {
 	_, err = prep.Exec(username)
 	if err != nil {
 		log.Println("Failed to delete account data:", err)
+	}
+}
+
+func SaveInterface(ifaceName, ifaceAddr, ifaceDesc string) bool {
+	if checkDuplicateInterface(ifaceName) {
+		return false
+	} else {
+		prep, err := wgdb.Prepare("INSERT INTO iface (addr, port, privkey, description) VALUES (?, ?, ?, ?);")
+		if err != nil {
+			log.Println(err)
+		}
+		defer prep.Close()
+
+		log.Println(wgiface.GenPrivKey())
+		return true
 	}
 }

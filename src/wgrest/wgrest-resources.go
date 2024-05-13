@@ -5,13 +5,13 @@ type InfoBody struct {
 	Message string `json:"message"`
 }
 
-type BasicFields struct {
+type BasicAuthFields struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 type NewAccountBody struct {
-	Auth    BasicFields `json:"auth"`
+	Auth    BasicAuthFields `json:"auth"`
 	Account struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -20,9 +20,10 @@ type NewAccountBody struct {
 }
 
 type InterfaceBody struct {
-	Auth      BasicFields `json:"auth"`
+	Auth      BasicAuthFields `json:"auth"`
 	Interface struct {
 		Name        string `json:"name"`
+		Address     string `json:"address"`
 		Description string `json:"description"`
 	} `json:"interface"`
 }

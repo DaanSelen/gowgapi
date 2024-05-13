@@ -69,9 +69,8 @@ func createInterface(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if wgauth.AuthCredentials(ifaceData.Auth.Username, ifaceData.Auth.Password) {
-
-		//INTERACT WITH SQLITE FOR INTERFACE CONFIG GENERATION
+	if wgauth.AuthCredentials(ifaceData.Auth.Username, ifaceData.Auth.Password) && wgauth.AuthAdminRole(ifaceData.Auth.Username) {
+		wgsqlite.SaveInterface(ifaceData.Interface.Name, ifaceData.Interface.Address, ifaceData.Interface.Description)
 
 		setCreated(w)
 	} else {

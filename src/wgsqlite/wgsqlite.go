@@ -52,6 +52,22 @@ func checkDuplicateUser(username string) bool {
 	return rowCount > 0
 }
 
+func checkDuplicateInterface(iface string) bool {
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM account WHERE iface == ?", iface)
+	var rowCount int
+	row.Scan(&rowCount)
+
+	return rowCount > 0
+}
+
+func checkDuplicateNetwork(address string) bool {
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM account WHERE username == ?", address)
+	var rowCount int
+	row.Scan(&rowCount)
+
+	return rowCount > 0
+}
+
 func setupTables() {
 	var count int = 0
 	for x := range tableQueries { // Create all tables defined in the function call.
