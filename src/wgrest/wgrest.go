@@ -42,6 +42,7 @@ func InitFrontend(waitGroup *sync.WaitGroup) {
 	wgapi.HandleFunc("/iface/create", createInterface).Methods("POST")
 	wgapi.HandleFunc("/iface/delete", createInterface).Methods("DELETE")
 
+	log.Println("GOING IN")
 	err := secureWeb.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		log.Fatal("Failed to launch REST HTTP API:", err)
