@@ -40,17 +40,17 @@ func DeleteAccount(username string) {
 	}
 }
 
-func SaveInterface(ifaceName, ifaceAddr, ifacePort, ifaceDesc string) bool {
+func SaveInterface(ifaceName, ifaceAddr, ifacePort, ifaceOut, ifaceDesc string) bool {
 	if checkDuplicateInterface(ifaceName) || checkDuplicateNetwork(ifaceAddr, ifacePort) {
 		return false
 	} else {
-		prep, err := wgdb.Prepare("INSERT INTO iface (name, addr, port, privkey, description) VALUES (?, ?, ?, ?, ?);")
+		prep, err := wgdb.Prepare("INSERT INTO iface (name, addr, port, out_interface, privkey, description) VALUES (?, ?, ?, ?, ?, ?);")
 		if err != nil {
 			log.Println(err)
 		}
 		defer prep.Close()
 
-		_, err = prep.Exec(ifaceName, ifaceAddr, ifacePort, wgiface.GenPrivKey(), ifaceDesc)
+		_, err = prep.Exec(ifaceName, ifaceAddr, ifacePort, ifaceOut, wgiface.GenPrivKey(), ifaceDesc)
 		if err != nil {
 			log.Println("Failed to create interface:", err)
 		}

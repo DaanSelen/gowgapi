@@ -22,9 +22,10 @@ type NewAccountBody struct {
 type InterfaceBody struct {
 	Auth      BasicAuthFields `json:"auth"`
 	Interface struct {
-		Name        string `json:"name"`
-		Address     string `json:"address"`
-		Port        string `json:"port"`
-		Description string `json:"description"`
+		Name          string `json:"name"`
+		Address       string `json:"address"`
+		Port          string `json:"port"`
+		Out_Interface string `json:"out_interface"`
+		Description   string `json:"description"`
 	} `json:"interface"`
 }

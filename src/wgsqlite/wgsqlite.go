@@ -37,6 +37,27 @@ func QueryUser(username string) UserQueryStruct {
 	return result
 }
 
+func QueryAllInterfaces() []InterfaceQueryStruct {
+	rows, _ := wgdb.Query("SELECT name, addr, port, out_interface, privkey FROM iface")
+	var result []InterfaceQueryStruct
+
+	defer rows.Close()
+	for rows.Next() {
+		var singleInterface InterfaceQueryStruct
+		rows.Scan(&singleInterface.Name, &singleInterface.Address, &singleInterface.Port, &singleInterface.Out_Interface, &singleInterface.PrivKey)
+		result = append(result, singleInterface)
+	}
+
+	return result
+}
+
+func QuieryPrivKey(ifaceName string) string {
+	row := wgdb.QueryRow("SELECT privkey FROM iface WHERE name == ?;", ifaceName)
+	var privKey string
+	row.Scan(&privKey)
+	return privKey
+}
+
 func CheckEmptyAccountTable() bool {
 	row := wgdb.QueryRow("SELECT COUNT(*) FROM account")
 	var rowCount int

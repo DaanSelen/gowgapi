@@ -3,6 +3,7 @@ package wgrest
 import (
 	"encoding/json"
 	"gowgapi/wgauth"
+	"gowgapi/wgparser"
 	"gowgapi/wgsqlite"
 	"log"
 	"net/http"
@@ -69,7 +70,7 @@ func createInterface(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if wgauth.AuthCredentials(ifaceData.Auth.Username, ifaceData.Auth.Password) && wgauth.AuthAdminRole(ifaceData.Auth.Username) {
-		if ok := wgsqlite.SaveInterface(ifaceData.Interface.Name, ifaceData.Interface.Address, ifaceData.Interface.Port, ifaceData.Interface.Description); ok {
+		if ok := wgsqlite.SaveInterface(ifaceData.Interface.Name, ifaceData.Interface.Address, ifaceData.Interface.Port, ifaceData.Interface.Out_Interface, ifaceData.Interface.Description); ok {
 			setCreated(w)
 		} else {
 			setDuplicate(w)
@@ -77,4 +78,8 @@ func createInterface(w http.ResponseWriter, r *http.Request) {
 	} else {
 		setUnauthorized(w)
 	}
+}
+
+func parseInterface(w http.ResponseWriter, r *http.Request) {
+	wgparser.ParseAll()
 }

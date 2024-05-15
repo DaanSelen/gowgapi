@@ -7,4 +7,4 @@ go build -o ../
 
 echo "Executing"
 cd ../
-./gowgapi
+sudo ./gowgapi

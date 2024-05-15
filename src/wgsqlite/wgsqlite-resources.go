@@ -7,6 +7,14 @@ type UserQueryStruct struct {
 	Salt     string
 }
 
+type InterfaceQueryStruct struct {
+	Name          string
+	Address       string
+	Port          string
+	Out_Interface string
+	PrivKey       string
+}
+
 var (
 	tableQueries = [...]string{
 		`
@@ -24,6 +32,7 @@ var (
 			name VARCHAR(50) UNIQUE NOT NULL,
 			addr VARCHAR(50) UNIQUE NOT NULL,
 			port VARCHAR(20) UNIQUE NOT NULL,
+			out_interface VARCHAR(50) NOT NULL,
 			privkey VARCHAR(255) NOT NULL,
 			description VARCHAR(255)
 		);`,

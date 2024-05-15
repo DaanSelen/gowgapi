@@ -41,6 +41,7 @@ func InitFrontend(waitGroup *sync.WaitGroup) {
 
 	wgapi.HandleFunc("/iface/create", createInterface).Methods("POST")
 	wgapi.HandleFunc("/iface/delete", createInterface).Methods("DELETE")
+	wgapi.HandleFunc("/iface/parse", parseInterface).Methods("GET")
 
 	err := secureWeb.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
@@ -81,7 +82,7 @@ func setBad(w http.ResponseWriter) {
 }
 
 func setDuplicate(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusBadRequest)
+	w.WriteHeader(http.StatusConflict)
 	json.NewEncoder(w).Encode(InfoBody{
 		Code:    "DUPLICATE DETECTED",
 		Message: version,
