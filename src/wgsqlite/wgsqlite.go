@@ -84,7 +84,7 @@ func checkDuplicateInterface(iface string) bool {
 
 func checkDuplicateNetwork(address, port string) bool {
 	octets := strings.Split(address, ".")
-	row := wgdb.QueryRow("SELECT COUNT(*) FROM iface WHERE addr LIKE @pattern", sql.Named("pattern", "%."+octets[2]+".%")) // Check the third octec for /24 subnets.
+	row := wgdb.QueryRow("SELECT COUNT(*) FROM iface WHERE addr LIKE @pattern", sql.Named("pattern", "%.%."+octets[2]+".%")) // Check the third octec for /24 subnets.
 	var netRowCount int
 	row.Scan(&netRowCount)
 

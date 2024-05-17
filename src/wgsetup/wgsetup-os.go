@@ -17,7 +17,7 @@ const (
 func statCertDirectory() bool {
 	_, err := os.Stat("./certificate")
 	if err != nil || os.IsNotExist(err) {
-		log.Println("Error, Certificate directory not present or something else went wrong.")
+		log.Println("Error, Certificate directory most likely not present (or something else went wrong).")
 		return false
 	} else {
 		return true
@@ -44,7 +44,7 @@ func statWGDirectory() bool {
 	_, err3 := os.Stat((WireGuard_Dir + "/iface-client"))
 
 	if (err1 != nil && os.IsNotExist(err1)) || (err2 != nil && os.IsNotExist(err2)) || (err3 != nil && os.IsNotExist(err3)) {
-		log.Println("One (or more) of the needed directories is not present.")
+		log.Println("One (or more) of the needed directories is not present most likely.")
 		return false
 	} else {
 		return true
@@ -112,16 +112,14 @@ func modWGQuick() bool {
 func ensureCert() {
 	_, err1 := os.Stat("./certificate/gowgapi.crt")
 	_, err2 := os.Stat("./certificate/gowgapi.key")
-	if err1 != nil || err2 != nil {
-		if os.IsNotExist(err1) || os.IsNotExist(err2) {
-			log.Println("Using built-in OpenSSL tool to generate certificate...")
-			cmd := exec.Command("openssl", "req", "-x509", "-nodes", "-days", "3650", "-newkey", "rsa:"+rsaLength, "-keyout", "./certificate/gowgapi.key", "-out", "./certificate/gowgapi.crt", "-subj", "/C=NL/ST=Limburg/L=Venlo/O=Nerthus/CN=GoWGAPI")
-			output, _ := cmd.CombinedOutput()
-			log.Println(string(output))
-			log.Println("Generated self-signed certificate.")
-		} else {
-			log.Println("Unknown error while checking certificate presence.")
-		}
+
+	if (err1 != nil && os.IsNotExist(err1)) || (err2 != nil && os.IsNotExist(err2)) {
+		log.Println("Using built-in OpenSSL tool to generate certificate...")
+		cmd := exec.Command("openssl", "req", "-x509", "-nodes", "-days", "3650", "-newkey", "rsa:"+rsaLength, "-keyout", "./certificate/gowgapi.key", "-out", "./certificate/gowgapi.crt", "-subj", "/C=NL/ST=Limburg/L=Venlo/O=Nerthus/CN=GoWGAPI")
+		output, _ := cmd.CombinedOutput()
+		log.Println(string(output))
+
+		log.Println("Generated self-signed certificate.")
 	} else {
 		log.Println("Found pre-existing certificate and key.")
 	}
