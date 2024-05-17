@@ -18,16 +18,14 @@ func ParseAll() {
 
 		_, err := os.Stat(configPath)
 		log.Println(err)
-		log.Println("test")
 		if err != nil || os.IsNotExist(err) {
-
-			log.Println("test")
 			os.Create(configPath)
+		}
 
-			err := os.WriteFile(configPath, []byte(parse(iface.Name, iface.Address, iface.Port, iface.Out_Interface)), 0644)
-			if err != nil {
-				log.Println(err, "test")
-			}
+		log.Println(configPath)
+		err = os.WriteFile(configPath, []byte(parse(iface.Name, iface.Address, iface.Port, iface.Out_Interface)), 0644)
+		if err != nil {
+			log.Println(err, "test")
 		}
 	}
 }
@@ -37,6 +35,7 @@ func CreateAndParseInterface(ifaceName, address, port, outiface string) {
 }
 
 func parse(ifaceName, address, port, out_iface string) string {
+	//GENERATE The WireGuard Interface Config part.
 	privKey := wgsqlite.QuieryPrivKey(ifaceName)
 	fw_rules := strings.ReplaceAll(default_fw_rules, "<WG-INTERFACE>", ifaceName)
 	fw_rules = strings.ReplaceAll(fw_rules, "<OUTGOING-INTERFACE>", out_iface)
@@ -44,5 +43,6 @@ func parse(ifaceName, address, port, out_iface string) string {
 	config_template := strings.ReplaceAll(interface_template, "<FW-RULES>", fw_rules)
 	config_template = fmt.Sprintf(config_template, address, port, privKey)
 
+	//GENERATE The WireGuard Peers part.
 	return config_template
 }

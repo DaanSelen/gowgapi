@@ -43,8 +43,8 @@ func statWGDirectory() bool {
 	_, err2 := os.Stat((WireGuard_Dir + "/iface-config"))
 	_, err3 := os.Stat((WireGuard_Dir + "/iface-client"))
 
-	if (err1 != nil || os.IsNotExist(err1)) || (err2 != nil || os.IsNotExist(err2)) || (err3 != nil || os.IsNotExist(err3)) {
-		log.Println("One of the needed directories is not present or something else went wrong.")
+	if (err1 != nil && os.IsNotExist(err1)) || (err2 != nil && os.IsNotExist(err2)) || (err3 != nil && os.IsNotExist(err3)) {
+		log.Println("One (or more) of the needed directories is not present.")
 		return false
 	} else {
 		return true
@@ -52,9 +52,9 @@ func statWGDirectory() bool {
 }
 
 func createWGDirectoryTree() {
-	err1 := os.Mkdir(WireGuard_Dir, 0755)
-	err2 := os.Mkdir((WireGuard_Dir + "/iface-config"), 0755)
-	err3 := os.Mkdir((WireGuard_Dir + "/iface-client"), 0755)
+	err1 := os.Mkdir(WireGuard_Dir, 0700)
+	err2 := os.Mkdir((WireGuard_Dir + "/iface-config"), 0700)
+	err3 := os.Mkdir((WireGuard_Dir + "/iface-client"), 0700)
 	if (err1 != nil || os.IsNotExist(err1)) || (err2 != nil || os.IsNotExist(err2)) || (err3 != nil || os.IsNotExist(err3)) {
 		log.Printf("Error creating directory tree.")
 		log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
