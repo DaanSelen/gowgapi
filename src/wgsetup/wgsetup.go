@@ -17,22 +17,29 @@ func Install() {
 }
 
 func repairInstall() bool {
+	var installFault int = 0
 	if !statWGDirectory() {
 		log.Println("Installation incomplete, installing...")
 		createWGDirectoryTree()
-		return false
-	} else if !statCertDirectory() {
+		installFault++
+	}
+	if !statCertDirectory() {
 		createCertDirectory()
-		return false
-	} else if !statPackage(wireGuard_Pkg) {
+		installFault++
+	}
+	if !statPackage(wireGuard_Pkg) {
 		installPackage(wireGuard_Pkg)
 		modWGQuick()
-		return false
-	} else if !statPackage(openssl_Pkg) {
+		installFault++
+	}
+	if !statPackage(openssl_Pkg) {
 		installPackage(openssl_Pkg)
-		return false
-	} else {
+		installFault++
+	}
+	if installFault == 0 {
 		return true
+	} else {
+		return false
 	}
 }
 

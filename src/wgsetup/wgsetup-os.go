@@ -9,21 +9,16 @@ import (
 )
 
 const (
-	wireGuard_Dir string = "/etc/wireguard"
+	WireGuard_Dir string = "/etc/wireguard"
 	wgQuick_Loc   string = "/usr/bin/wg-quick"
 	rsaLength     string = "8192"
 )
 
 func statCertDirectory() bool {
 	_, err := os.Stat("./certificate")
-	if err != nil {
-		if os.IsNotExist(err) {
-			log.Println("Certificate directory not present.")
-			return false
-		} else {
-			log.Println("Unknown error while checking certificate directory presence.")
-			return false
-		}
+	if err != nil || os.IsNotExist(err) {
+		log.Println("Error, Certificate directory not present or something else went wrong.")
+		return false
 	} else {
 		return true
 	}
@@ -44,34 +39,25 @@ func createCertDirectory() {
 }
 
 func statWGDirectory() bool {
-	_, err1 := os.Stat(wireGuard_Dir)
-	_, err2 := os.Stat((wireGuard_Dir + "/iface-config"))
-	_, err3 := os.Stat((wireGuard_Dir + "/iface-client"))
+	_, err1 := os.Stat(WireGuard_Dir)
+	_, err2 := os.Stat((WireGuard_Dir + "/iface-config"))
+	_, err3 := os.Stat((WireGuard_Dir + "/iface-client"))
 
-	if err1 != nil || err2 != nil || err3 != nil {
-		if os.IsNotExist(err1) || os.IsNotExist(err2) || os.IsNotExist(err3) {
-			log.Println("One of the needed directories is not present.")
-			return false
-		} else {
-			log.Println("Unknown error while checking directory presence.")
-			return false
-		}
+	if (err1 != nil && os.IsNotExist(err1)) || (err2 != nil && os.IsNotExist(err2)) || (err3 != nil && os.IsNotExist(err3)) {
+		log.Println("One (or more) of the needed directories is not present.")
+		return false
 	} else {
 		return true
 	}
 }
 
 func createWGDirectoryTree() {
-	err1 := os.Mkdir(wireGuard_Dir, 0755)
-	err2 := os.Mkdir((wireGuard_Dir + "/iface-config"), 0755)
-	err3 := os.Mkdir((wireGuard_Dir + "/iface-client"), 0755)
-	if err1 != nil || err2 != nil || err3 != nil {
-		if os.IsPermission(err1) || os.IsPermission(err2) || os.IsPermission(err3) {
-			log.Printf("Error creating directory.")
-			log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
-		} else {
-			log.Println("Unable to create the WireGuard directory.", err1, err2, err3)
-		}
+	err1 := os.Mkdir(WireGuard_Dir, 0700)
+	err2 := os.Mkdir((WireGuard_Dir + "/iface-config"), 0700)
+	err3 := os.Mkdir((WireGuard_Dir + "/iface-client"), 0700)
+	if (err1 != nil || os.IsNotExist(err1)) || (err2 != nil || os.IsNotExist(err2)) || (err3 != nil || os.IsNotExist(err3)) {
+		log.Printf("Error creating directory tree.")
+		log.Fatal("Either manually create the directory with correct permissions (755), or run this program as root (sudo).")
 	} else {
 		log.Println("Created the WireGuard directory tree.")
 	}
@@ -109,7 +95,7 @@ func modWGQuick() bool {
 	}
 
 	oldString := `[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="/etc/wireguard/$CONFIG_FILE.conf"` // Only the part after the '&&' matters.
-	newString := fmt.Sprintf(`[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="%s/$CONFIG_FILE.conf"`, (wireGuard_Dir + "/iface-config"))
+	newString := fmt.Sprintf(`[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="%s/$CONFIG_FILE.conf"`, (WireGuard_Dir + "/iface-config"))
 
 	modifiedContent := strings.Replace(string(content), oldString, newString, -1)
 
